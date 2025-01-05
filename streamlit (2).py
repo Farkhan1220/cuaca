@@ -1,10 +1,23 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression
+
 # Streamlit App Title
 st.title('Linear Regression Weather Prediction')
 st.write("This app uses a Linear Regression model to predict weather conditions based on user-provided data.")
 
+# File Upload
+uploaded_file = st.file_uploader("klasifikasi_cuaca", type=["csv"])
+
 if uploaded_file is not None:
     # Load Dataset
-    df = pd.read_csv("klasifikasi_cuaca.csv")
+    df = pd.read_csv(uploaded_file)
     st.write("### Dataset Preview")
     st.dataframe(df.head())
 
