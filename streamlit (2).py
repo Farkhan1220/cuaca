@@ -13,11 +13,11 @@ st.title('Linear Regression Weather Prediction')
 st.write("This app uses a Linear Regression model to predict weather conditions based on user-provided data.")
 
 # File Upload
-uploaded_file = st.file_uploader("Upload your dataset (CSV format):", type=["csv"])
+uploaded_file = st.file_uploader("klasifikasi_cuaca.csv", type=["csv"])
 
 if uploaded_file is not None:
     # Load Dataset
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(klasifikasi_cuaca)
     st.write("### Dataset Preview")
     st.dataframe(df.head())
 
