@@ -1,41 +1,60 @@
+# Streamlit App Title
+st.title('Linear Regression Weather Prediction')
+st.write("This app uses a Linear Regression model to predict weather conditions based on user-provided data.")
 
-# Load pre-trained model (replace 'model.pkl' with the actual model file path)
-def load_model():
-    return joblib.load('model.pkl')
+if uploaded_file is not None:
+    # Load Dataset
+    df = pd.read_csv("klasifikasi_cuaca.csv")
+    st.write("### Dataset Preview")
+    st.dataframe(df.head())
 
-# Predict weather classification
-def predict_weather(model, input_data):
-    predictions = model.predict(input_data)
-    return predictions
+    # Feature Selection
+    st.write("### Select Features and Target")
+    features = st.multiselect("Select Features for Prediction:", options=df.columns, default=df.columns[:-1])
+    target = st.selectbox("Select Target Variable:", options=df.columns, index=len(df.columns)-1)
 
-# Streamlit app
-def main():
-    st.title("Aplikasi Klasifikasi Cuaca")
+    if len(features) > 0 and target:
+        X = df[features]
+        y = df[target]
 
-    # Upload dataset
-    uploaded_file = st.file_uploader("klasifikasi_cuaca.csv", type="csv")
-    if uploaded_file is not None:
-        data = pd.read_csv(klasifikas_cuaca)
-        st.write("### Pratinjau Data")
-        st.write(data.head())
+        # Split Dataset
+        test_size = st.slider("Test Size (as a percentage):", 10, 50, 20, step=5) / 100
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
-        # Load model
-        model = load_model()
+        # Standardize Features
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
 
-        # Ensure the uploaded data has the necessary features
-        try:
-            st.write("### Prediksi Cuaca")
-            predictions = predict_weather(model, data)
-            data['Prediction'] = predictions
-            st.write(data)
+        # Train Linear Regression Model
+        model = LinearRegression()
+        model.fit(X_train, y_train)
 
-            # Visualization of results
-            st.write("### Visualisasi Hasil")
-            st.bar_chart(data['Prediction'].value_counts())
-        except Exception as e:
-            st.error(f"Terjadi kesalahan: {e}")
-    else:
-        st.info("Silakan unggah file untuk memulai.")
+        # Predictions
+        y_pred = model.predict(X_test)
 
-if __name__ == "__main__":
-    main()
+        # Evaluate Model
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        st.write("### Model Performance")
+        st.write(f"Mean Squared Error: {mse:.2f}")
+        st.write(f"R-squared: {r2:.2f}")
+
+        # Plot Actual vs Predicted
+        st.write("### Actual vs Predicted")
+        fig1, ax1 = plt.subplots()
+        ax1.scatter(y_test, y_pred, alpha=0.6)
+        ax1.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', color='red')
+        ax1.set_xlabel('Actual')
+        ax1.set_ylabel('Predicted')
+        ax1.set_title('Actual vs Predicted')
+        st.pyplot(fig1)
+
+        # Residuals Distribution
+        st.write("### Residuals Distribution")
+        residuals = y_test - y_pred
+        fig2, ax2 = plt.subplots()
+        sns.histplot(residuals, kde=True, bins=30, ax=ax2)
+        ax2.set_title('Residuals Distribution')
+        st.pyplot(fig2)
