@@ -1,6 +1,3 @@
-import streamlit as st
-import pandas as pd
-import joblib
 
 # Load pre-trained model (replace 'model.pkl' with the actual model file path)
 def load_model():
